@@ -1,0 +1,532 @@
+
+GPDRONE-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	enterprises, TimeTicks
+		FROM RFC1155-SMI
+	OBJECT-TYPE
+		FROM RFC-1212;
+
+gpDroneMIB           OBJECT IDENTIFIER ::= { enterprises 12620 }
+systemInformation    OBJECT IDENTIFIER ::= { gpDroneMIB 1 }
+instrumentation      OBJECT IDENTIFIER ::= { gpDroneMIB 2 }
+position             OBJECT IDENTIFIER ::= { instrumentation 1 }
+engine               OBJECT IDENTIFIER ::= { gpDroneMIB 3 }
+flaps                OBJECT IDENTIFIER ::= { gpDroneMIB 4 }
+lighting             OBJECT IDENTIFIER ::= { gpDroneMIB 5 }
+communication        OBJECT IDENTIFIER ::= { gpDroneMIB 6 }
+landingGear          OBJECT IDENTIFIER ::= { gpDroneMIB 7 }
+
+sysAircraftID  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION 
+		"Provides system information from the aircraft being
+		monitored."
+	::= { systemInformation 1 }
+
+sysAircraftType  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION 
+		"Describes the type of aircraft being monitored."
+	::= { systemInformation 2 }
+
+sysCurrentPilotID  OBJECT-TYPE
+	SYNTAX     OCTET STRING
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION 
+		"Informs the Identification Number of the pilot currently
+		assigned to the aircraft."
+	::= { systemInformation 3 }
+
+sysTimeUp  OBJECT-TYPE
+	SYNTAX     TimeTicks
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION 
+		"Indicates for how long the system has been live."
+	::= { systemInformation 4 }
+
+instPosArtificialHorizon  OBJECT-TYPE
+	SYNTAX     OCTET STRING (SIZE(4))
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION 
+		"Shows the aircraft뭩 relation to the horizon in
+		degrees."
+	::= { position 1 }
+
+instPosMagneticCompass  OBJECT-TYPE
+	SYNTAX     OCTET STRING (SIZE(4))
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION 
+		"Informs the aircraft's heading relating to the magnetic
+		north in degrees."
+	::= { position 2 }
+
+instPosCourseDeviation  OBJECT-TYPE
+	SYNTAX     OCTET STRING (SIZE(4))
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION 
+		"Informs the aircraft's deviation in its position relating
+		to a certain track."
+	::= { position 3 }
+
+instPosRMI  OBJECT-TYPE
+	SYNTAX     OCTET STRING (SIZE(4))
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION 
+		"The radio magnetic indicator allows for position fixing,
+		coupled with two automatic direction finders, which give the relative bearing from the
+		aircraft to a radio station (beacon)."
+	::= { position 4 }
+
+instPosGpsLatitude  OBJECT-TYPE
+	SYNTAX     OCTET STRING (SIZE(4))
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION 
+		"Indicates the latitude currently being measured by the aircraft's GPS module."
+	::= { position 5 }
+
+instPosGpsLongitude  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the longitude currently being measured by the aircraft's GPS module."
+	::= { position 6 }
+
+instPosAltitude  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the altitude currently measured (in feet)."
+	::= { position 7 }
+
+clock  OBJECT IDENTIFIER ::= { instrumentation 2 }
+
+instClTime  OBJECT-TYPE
+	SYNTAX 	OCTET STRING
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Current system time in a readable format (format: mm/dd/yyyy hh:mm:ss)."
+	::= { clock 1 }
+
+instClTimeToDest  OBJECT-TYPE
+	SYNTAX 	Counter
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Estimated arrival time under current flight conditions (in seconds)."
+	::= { clock 2 }
+
+speed  OBJECT IDENTIFIER ::= { instrumentation 3 }
+
+instSpeedAir  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"밒nforms the true air speed in knots"
+	::= { speed 1 }
+
+instSpeedWind  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Informs the wind speed in knots."
+	::= { speed 2 }
+
+instSpeedGround  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Informs the vertical speed, which is the vector sum of
+		speedAir and speedWind."
+	::= { speed 3 }
+
+instSpeedVertical  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the aircraft's vertical speed in relation to the
+		ground."
+	::= { speed 4 }
+
+sensor  OBJECT IDENTIFIER ::= { instrumentation 4 }
+
+instSenOutsideTemperature  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the temperature currently measured outside
+		the aircraft."
+	::= { sensor 1 }
+
+instSenCabinTemperature  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the temperature currently measured inside
+		the aircraft뭩 cabin."
+	::= { sensor 2 }
+
+instSenOutsidePressure  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the current pressure calculated from
+		outside the aircraft."
+	::= { sensor 3 }
+
+instSenCockpitPressure  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the current pressure calculated inside the
+		aircraft뭩 cabin."
+	::= { sensor 4 }
+
+engNum  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the quantity of engines available for control by the aircraft controller."
+	::= { engine 1 }
+
+engineTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF EngineEntry
+	ACCESS  	not-accessible
+	STATUS 	mandatory
+	DESCRIPTION 
+		""
+	::= { engine 2 }
+	
+engineEntry  OBJECT-TYPE
+	SYNTAX 	EngineEntry
+	ACCESS  	not-accessible
+	STATUS 	mandatory
+	DESCRIPTION 
+		""
+	INDEX { engIndex }
+	::= { engineTable 1 }
+
+EngineEntry ::= SEQUENCE {
+	engStatus
+		INTEGER,
+	engTemperature
+		OCTET STRING,
+	engRpm
+		OCTET STRING,
+	engTorque
+		OCTET STRING,
+	engThrottle
+		OCTET STRING,
+	engToggle
+		INTEGER,
+	engFuelPercentage
+		OCTET STRING,
+	engFuelLeakage
+		INTEGER,
+	engIndex
+		INTEGER
+}
+
+engStatus  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Informs whether engine is working properly or
+		if there is some problem with it. 0 means it큦 working properly, 1
+		means there큦 a problem with it."
+	::= { engineEntry 1 }
+
+engTemperature  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Informs the given engine's current
+		temperature (in Celsius)."
+	::= { engineEntry 2 }
+
+engRpm  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Shows the value in rotations per minute for the
+		given engine."
+	::= { engineEntry 3 }
+
+engTorque  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Shows the torque being applied on the
+		engine."
+	::= { engineEntry 4 }
+
+engThrottle  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-write
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Sets and displays the level of throttling."
+	::= { engineEntry 5 }
+
+engToggle  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-write
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Enable/disable the given engine and show its
+		value. 0 means enabled, 1 means disabled."
+	::= { engineEntry 6 }
+
+engFuelPercentage  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Gives the percentage of fuel in tank."
+	::= { engineEntry 7 }
+
+engFuelLeakage  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Informs whether there might be a leakage currently occurring tank. A value of 0 indicates that no problems have been identified so far. Any other value indicates otherwise."
+	::= { engineEntry 8 }     
+	
+	
+engIndex  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indexes the engine table."
+	::= { engineEntry 9 }      
+
+flapsNum  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the quantity of flaps available for control."
+	::= { flaps 1 }
+	
+	
+flapsTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF FlapsEntry
+	ACCESS  	not-accessible
+	STATUS 	mandatory
+	DESCRIPTION 
+		""
+	::= { flaps 2 }
+	
+	
+flapsEntry  OBJECT-TYPE
+	SYNTAX 	FlapsEntry
+	ACCESS  	not-accessible
+	STATUS 	mandatory
+	DESCRIPTION 
+		""
+	INDEX { flapIndex }
+	::= { flapsTable 1 }
+
+FlapsEntry ::= SEQUENCE {
+	flapStatus
+		INTEGER,
+	flapSetPos
+		OCTET STRING,
+	flapCurPos
+		OCTET STRING,
+	flapIndex
+		INTEGER
+}
+
+
+flapStatus  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates current status of the flap, providing information on whether it뭩 working or not."
+	::= { flapsEntry 1 }
+
+flapSetPos  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-write
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Sets the position of the flap according to a decision
+		made by a remote controller."
+	::= { flapsEntry 2 }
+
+flapCurPos  OBJECT-TYPE
+	SYNTAX 	OCTET STRING (SIZE(4))
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Queries the current position of the flap."
+	::= { flapsEntry 3 }
+
+flapIndex  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indexes the flaps table."
+	::= { flapsEntry 4 }
+	
+lightNum  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the quantity of lighting elements present on the
+		aircraft that are available for handling by the controller."
+	::= { lighting 1 }
+	
+lightingTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF LightingEntry
+	ACCESS  	not-accessible
+	STATUS 	mandatory
+	DESCRIPTION 
+		""
+	::= { lighting 2 }
+
+lightingEntry  OBJECT-TYPE
+	SYNTAX 	LightingEntry
+	ACCESS  	not-accessible
+	STATUS 	mandatory
+	DESCRIPTION 
+		""
+	INDEX { lighIndex }
+	::= { lightingTable 1 }
+
+LightingEntry ::= SEQUENCE {
+	lightDescription
+		OCTET STRING,
+	lightToggle
+		INTEGER,
+	lightIndex
+		INTEGER
+}
+
+lightDescription  OBJECT-TYPE
+	SYNTAX 	OCTET STRING
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Provides a brief explanation about the lighing
+		element being accessed."
+	::= { lightingEntry 1 }
+	
+	
+lightToggle  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-write
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Turns the light emitter either on or off."
+	::= { lightingEntry 2 }
+
+lightIndex  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indexes the lighting table."
+	::= { lightingEntry 3 }
+
+
+comOctetsRecvd  OBJECT-TYPE
+	SYNTAX 	Counter
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the total quantity of octets that were received at the
+		control interface since system startup."
+	::= { communication 1 }
+
+comOctetSent  OBJECT-TYPE
+	SYNTAX 	Counter
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the total quantity of octets that were sent over the
+		control interface since system startup. Contains the value comOctetsError."
+	::= { communication 2 }
+
+comOctetsError  OBJECT-TYPE
+	SYNTAX 	Counter
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Indicates the total quantity of octets that were sent and either
+		were discarded or not received."
+	::= { communication 3 }
+
+lgCurState  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-only
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Used to retrieve current state of the landing gear. Can
+		indicate whether it is open/closed, moving or malfunctioning. 0 indicates
+		that it큦 unlocked and inside the aircraft, 1 indicates that it큦 unlocked and
+		lowered, 2 indicates that it큦 locked and inside the aircraft, 2 indicates that
+		it큦 malfunctioning."
+	::= { landingGear 1 }
+
+lgSetLock  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-write
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Lock/unlock the landing gear so it can or can큧 be
+		lowered. Send 0 to lock and 1 to unlock. The current state of the landing
+		gear can be found at lgCurState."
+	::= { landingGear 2 }
+	
+lgSetPosition  OBJECT-TYPE
+	SYNTAX 	INTEGER
+	ACCESS  	read-write
+	STATUS 	mandatory
+	DESCRIPTION 
+		"Lower or retrieve the landing gear to its original
+		position, 0 means lower and 1 means retrieve. For it to be lowered, it
+		needs the object lgCurState to return 0."
+	::= { landingGear 3 }
+	
+
+
+	
+
+
+END
+
+-- This MIB was created using NuDesign Technologies' Visual MIBuilder (Ver 5.2).

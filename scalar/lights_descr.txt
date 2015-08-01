@@ -1,0 +1,7 @@
+5
+beacon beacon
+landing-light-left landing-light
+landing-light-center landing-light[1]
+landing-light-right landing-light[2]
+logo-lights logo-lights
+

@@ -1,0 +1,1 @@
+make snmpdrone.so

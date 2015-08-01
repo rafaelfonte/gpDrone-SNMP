@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<style>  
+		/*    div {  
+		      background: #444;  
+		      color: white;  
+		      border: #600 6px;  
+		    }  
+		  
+		    div.one {  
+		      padding: 20px;  
+		    }  
+		  
+		    div.two {  
+		      padding: 20px 80px;  
+		    }  
+		  
+		    div.three {  
+		      padding: 20px 80px 10px;  
+		    }  
+		  
+		    div.four {  
+		      padding: 20px 80px 10px 40px;  
+		    }*/  
+		  </style>  
+		<script language="javascript" src="media/jquery-2.0.0.js"></script>
+		<link href="../../../flot/flot/examples/examples.css" rel="stylesheet" type="text/css">
+		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../../excanvas.min.js"></script><![endif]-->
+		<script language="javascript" type="text/javascript" src="../../../flot/flot/jquery.flot.js"></script>
+		<script>
+			var result_bin_str;
+			var light_num = -1;
+			var lights;
+			var init_time = 0;
+			function make_hex_str(query){
+				var b1 = query.charCodeAt(0);
+				if(b1 > 32767){
+					b1 = 255 + (-65536 + b1);
+				}
+				var b2 = query.charCodeAt(1);
+				if(b2 > 32767){
+					b2 = 255 + (-65536 + b2);
+				}
+				var b3 = query.charCodeAt(2);
+				if(b3 > 32767){
+					b3 = 255 + (-65536 + b3);
+				}
+				var b4 = query.charCodeAt(3);
+				if(b4 > 32767){
+					b4 = 255 + (-65536 + b4);
+				}
+				b1 = b1.toString(16);
+				b2 = b2.toString(16);
+				b3 = b3.toString(16);
+				b4 = b4.toString(16);
+				
+				
+
+				result = "";
+				result += (b1.length < 2 ? "0" : "") + b1;
+				result += (b2.length < 2 ? "0" : "") + b2;
+				result += (b3.length < 2 ? "0" : "") + b3;
+				result += (b4.length < 2 ? "0" : "") + b4;
+				//result = b1 + "," + b2 + "," + b2 + "," + b3 + ",";
+				return result;
+			}
+			function make_float(query){
+				query = make_hex_str(query);
+				var a = parseInt("0x"+query.match(/[0-9|A-F|a-f]{2}/g).reverse().join(""));
+				var s = a >> 31 ? -1 : 1;
+				var result = s*(a & 0x7fffff | 0x800000) * 1.0 / Math.pow(2,23) * Math.pow(2,  ((a>>23 & 0xff) - 127));
+				return result;
+			}
+			function update_float(type,index,id,trail){
+				var xhr = new XMLHttpRequest();
+				var url = "http://127.0.0.1:1337/GET/" + type + "." + index;
+				var myArr;
+				xhr.onreadystatechange = function() {
+				    if (xhr.readyState == 4) {
+					myArr = JSON.parse(xhr.responseText);
+					result_bin_str = myArr;
+					document.getElementById(id).innerHTML = trail + myArr["res"];//make_float(myArr["res"]);
+
+				    }
+				}
+				xhr.open('GET', url, true);
+				xhr.send(null);
+			}
+			function update_string(type,index,id,add_trail){
+				var xhr = new XMLHttpRequest();
+				var url = "http://127.0.0.1:1337/GET/" + type + "." + index;
+				var myArr;
+				xhr.onreadystatechange = function() {
+				    if (xhr.readyState == 4) {
+					myArr = JSON.parse(xhr.responseText);
+					result_bin_str = myArr;
+					document.getElementById(id).innerHTML = add_trail + myArr["res"];
+
+				    }
+				}
+				xhr.open('GET', url, true);
+				xhr.send(null);
+			}
+			function sysTime(type,index,id,add_trail){
+				var xhr = new XMLHttpRequest();
+				var url = "http://127.0.0.1:1337/GET/" + type + "." + index;
+				var myArr;
+				xhr.onreadystatechange = function() {
+				    if (xhr.readyState == 4) {
+					myArr = JSON.parse(xhr.responseText);
+					result_bin_str = myArr;
+					if(init_time == 0)
+						init_time = parseInt(myArr["res"])/100
+					document.getElementById(id).innerHTML = add_trail + (parseInt(myArr["res"])/100 - init_time) + " Seconds";
+
+				    }
+				}
+				xhr.open('GET', url, true);
+				xhr.send(null);
+			}
+			function get_light_num(){
+				var xhr = new XMLHttpRequest();
+				var url = "http://127.0.0.1:1337/GET/lightNum.0";
+				var myArr;
+				xhr.onreadystatechange = function() {
+				    if (xhr.readyState == 4) {
+					myArr = JSON.parse(xhr.responseText);
+					light_num = parseInt(myArr["res"]);
+				    }
+				}
+				xhr.open('GET', url, true);
+				xhr.send(null);
+			}
+			function get_lights(){
+				if(light_num > 0){
+					var i;
+					document.getElementById("lights").innerHTML = "";
+					for(i = 1; i <= light_num; i++){
+						get_light_descr(i);
+					}
+				}
+			}
+			function get_light_descr(idx){
+				var xhr = new XMLHttpRequest();
+				var url = "http://127.0.0.1:1337/GET/lightDescription." + idx;
+				var myArr;
+				xhr.onreadystatechange = function() {
+				    if (xhr.readyState == 4) {
+					myArr = JSON.parse(xhr.responseText);
+					document.getElementById("lights").innerHTML += "<h3>&nbsp;&nbsp;&nbsp;&nbsp;" + myArr["res"] +" toggle: <input type=\"radio\" id=\"" + idx + "_light\" onClick=\"setToggle(" + idx + ")\"></input></h3>";
+				    }
+				}
+				xhr.open('GET', url, true);
+				xhr.send(null);
+			}
+			function update_lights(){
+				if(light_num > 0){
+					var i;
+					for(i = 1; i <= light_num; i++){
+						get_light_toggle(i);
+					}
+				}
+			}
+			function get_light_toggle(idx){
+				var xhr = new XMLHttpRequest();
+				var url = "http://127.0.0.1:1337/GET/lightToggle." + idx;
+				var myArr;
+				xhr.onreadystatechange = function() {
+				    if (xhr.readyState == 4) {
+					myArr = JSON.parse(xhr.responseText);
+						//alert(idx + " myArr " + myArr["res"] + (myArr["res"] == 1).toString());
+					if(myArr["res"] == 1){
+						document.getElementById(idx + "_light").checked = true;
+
+					}
+				    }
+				}
+				xhr.open('GET', url, true);
+				xhr.send(null);
+			}
+			function set_light_toggle(idx,val){
+				var xhr = new XMLHttpRequest();
+				var url = "http://127.0.0.1:1337/SET/lightToggle." + idx + "/" + val;
+				var myArr;
+				xhr.onreadystatechange = function() {
+				    if (xhr.readyState == 4) {
+				    }
+				}
+				xhr.open('GET', url, true);
+				xhr.send(null);
+			}
+			function setToggle(idx){
+				alert("here1");
+				if(document.getElementById(idx + "_light").checked == true){
+				//alert("here2");
+					document.getElementById(idx + "_light").checked = false;
+					set_light_toggle(idx,"1");
+				}
+				else{
+				//alert("here3");
+					document.getElementById(idx + "_light").checked = true;
+					set_light_toggle(idx,"0");
+				}
+			}
+/*				alert("here1");
+				if(document.getElementById(idx + "_light").checked == true){
+				//alert("here2");
+					document.getElementById(idx + "_light").checked = false;
+					set_light_toggle(idx,"1");
+				}
+				else{
+				//alert("here3");
+					document.getElementById(idx + "_light").checked = true;
+					set_light_toggle(idx,"0");
+				}
+			//setInterval(function(){update_float("instPosGpsLatitude","0","instPosGpsLatitude");},5000);
+			//setInterval(function(){update_float("instPosGpsLongitude","0","instPosGpsLongitude");},5000);
+			update_string("sysAircraftID","0","ID");
+			setInterval(function(){update_float("instPosAltitude","0","instPosAltitude");},1000);
+			get_light_num();
+*/
+			//setTimeout(function(){get_lights();},1000);
+			//setInterval(function(){get_lights();},120*1000);
+			//setTimeout(function(){update_lights();},2000);
+			//update("instPosAltitude","0","instPosAltitude");
+//////
+
+
+
+	$(function() {
+
+		var data = [],
+			totalPoints = 100;
+			function get_point(){
+				var xhr = new XMLHttpRequest();
+				var url = "http://127.0.0.1:1337/GET/instPosAltitude.0";
+				var myArr;
+				xhr.onreadystatechange = function() {
+				    if (xhr.readyState == 4) {
+					myArr = JSON.parse(xhr.responseText);
+					data.push(parseFloat(myArr["res"]));
+				    }
+				}
+				xhr.open('GET', url, true);
+				xhr.send(null);
+			}
+
+		// We use an inline data source in the example, usually data would
+		// be fetched from a server
+
+
+		function getRandomData() {
+
+			if (data.length > totalPoints){
+				//alert(data.length);				
+				data = data.slice(1);
+			}
+
+			// Do a random walk
+
+			/*while (data.length < totalPoints) {
+				get_point();
+
+			}*/
+	
+			get_point();
+			// Zip the generated y values with the x values
+
+			var res = [];
+			for (var i = 0; i < data.length; ++i) {
+				res.push([i, data[i]])
+			}
+
+			return res;
+		}
+
+		// Set up the control widget
+
+		var updateInterval = 1000;
+		/*$("#updateInterval").val(updateInterval).change(function () {
+			var v = $(this).val();
+			if (v && !isNaN(+v)) {
+				updateInterval = +v;
+				if (updateInterval < 1) {
+					updateInterval = 1;
+				} else if (updateInterval > 2000) {
+					updateInterval = 2000;
+				}
+				$(this).val("" + updateInterval);
+			}
+		});*/
+
+		var plot = $.plot("#placeholder", [ getRandomData() ], {
+			series: {
+				shadowSize: 0	// Drawing is faster without shadows
+			},
+			yaxis: {
+				tickFormatter: function(val, axis) { return val < axis.max ? val.toFixed(2) : "Altitude(ft)";},
+				min: -100,
+				max: 30000
+			},
+			xaxis: {
+				show: false
+			}
+		});
+		
+
+
+		function update() {
+
+			plot.setData([getRandomData()]);
+
+			// Since the axes don't change, we don't need to call plot.setupGrid()
+			plot.setupGrid();
+
+			plot.draw();
+			setTimeout(update, updateInterval);
+		}
+
+		update();
+
+		// Add the Flot version string to the footer
+
+		//$("#footer").prepend("Flot " + $.plot.version + " &ndash; ");
+	});
+
+		function switch_lg(val){
+			var xhr = new XMLHttpRequest();
+			var url = "http://127.0.0.1:1337/SET/lgSetPosition.0/" + val;
+			alert(url);
+			var myArr;
+			xhr.onreadystatechange = function() {
+			    if (xhr.readyState == 4) {
+				myArr = JSON.parse(xhr.responseText);
+					//alert(idx + " myArr " + myArr["res"] + (myArr["res"] == 1).toString());
+			    }
+			}
+			xhr.open('GET', url, true);
+			xhr.send(null);
+		}
+		var uncheck;
+
+		function toggle_lg(){
+				if(document.getElementById("lgToggle").checked == true){
+					//document.getElementById("lgToggle").checked = false;
+					switch_lg("1");
+				}
+				else{
+				//alert("here3");
+					//document.getElementById("lgToggle").checked = true;
+					switch_lg("0");
+				}
+		}
+		
+
+			setInterval(function(){update_float("instTotalFuel","0","instTotalFuel","&nbsp;&nbsp;&nbsp;&nbsp;");},5000);
+			setInterval(function(){update_float("instPosGpsLatitude","0","instPosGpsLatitude","&nbsp;&nbsp;&nbsp;&nbsp;");},5000);
+			setInterval(function(){update_float("instPosGpsLongitude","0","instPosGpsLongitude","&nbsp;&nbsp;&nbsp;&nbsp;");},5000);
+			update_string("sysAircraftID","0","ID","&nbsp;&nbsp;&nbsp;&nbsp;");
+			setInterval(function(){sysTime("sysTimeUp","0","sysTimeUp","&nbsp;&nbsp;&nbsp;&nbsp;");},3000);
+
+////////
+
+		</script>
+	</head>
+	<body>
+		<div>
+			<h1>Aircraft type</h1><h2 id="ID"></h2><br>
+			<h1>Altitude</h1>
+			<div class="demo-container">
+				<div id="placeholder" class="demo-placeholder"></div>
+			</div>
+			<h1>Latitude</div><h2 id="instPosGpsLatitude"></h2><br>
+			<h1>Longitude</div><h2 id="instPosGpsLongitude"></h2><br>
+			<h1>Time system has been up</h1><h2 id="sysTimeUp"></h2>
+			<h1>Landing gear</h1><h2 id="lg_set">&nbsp;&nbsp;&nbsp;&nbsp;<input id="lgToggle" type="checkbox" onClick="toggle_lg()" checked="true"/></h2>
+			<h1>Fuel (kg)</div><h2 id="instTotalFuel"></h2><br>
+			<h1>Lights</h1><h2 id="lights"></h2>
+		</div>
+	</body>
+</html>
