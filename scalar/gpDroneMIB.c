@@ -1,8 +1,7 @@
 /*
 GPDRONE-agent-X implementation
 
-	Julia Casarin Puget(159207)
-	Rafael da Fonte Lopes da Silva(193407)
+	Rafael da Fonte Lopes da Silva
 
 	This file contains the implementation of a MIB module for managing an aircraft from
 	Flight-Gear, by making use of its http daemon feature as an interface.
